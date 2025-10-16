@@ -1,0 +1,38 @@
+// Akıllı Ev Güvenlik Sistemi – Sürekli Döngü
+digraph RealtimeSecurity {
+  rankdir=TB;
+  node [fontname="Arial", fontsize=11];
+
+  start   [shape=oval,    label="BAŞLA"];
+  init    [shape=rectangle,label="Sistemi başlat"];
+  read    [shape=rectangle,label="Sensörleri oku\n(hareket/kapı/duman/gaz/kamera)"];
+  eval    [shape=diamond, label="Tehdit seviyesi?"];
+  lvl0    [shape=rectangle,label="Seviye 0: Normal\n(Göstergeleri kapat)"];
+  lvl1    [shape=rectangle,label="Seviye 1: Bildirim"];
+  lvl2    [shape=rectangle,label="Seviye 2: Uyarı\n(Işık+Buzzer)"];
+  lvl3    [shape=rectangle,label="Seviye 3: Tam Alarm\n(Siren+Kilit+Kayıt)"];
+  resetQ  [shape=diamond, label="Alarm sıfırlama\nkomutu geldi mi?"];
+  cool    [shape=rectangle,label="Kısa bekleme (ms)"];
+  loopLbl [shape=plaintext,label="⟳ Sürekli"];
+
+  start -> init -> read -> eval;
+  eval -> lvl0 [label="0"];
+  eval -> lvl1 [label="1"];
+  eval -> lvl2 [label="2"];
+  eval -> lvl3 [label="3"];
+
+  // Alarm akışları
+  lvl0 -> cool;
+  lvl1 -> cool;
+  lvl2 -> resetQ;
+  lvl3 -> resetQ;
+
+  resetQ -> cool [label="EVET\n(Alarmı kapat)"];
+  resetQ -> cool [label="HAYIR"];
+
+  // Sonsuz döngü: geri ok "Sürekli"
+  cool -> read [label="Sürekli", fontsize=10];
+  loopLbl -> read [style=dotted];
+
+  // İsteğe bağlı: çıkış yok; gerçek zamanlı sistem
+}
