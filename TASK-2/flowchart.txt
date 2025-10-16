@@ -1,0 +1,39 @@
+// Adım 3: Graphviz DOT (rankdir=TB, karar kenarları EVET/HAYIR)
+digraph ECommerceFlow {
+  rankdir=TB;
+  node [fontname="Arial", fontsize=11];
+  
+  start [shape=oval, label="BAŞLA"];
+  login [shape=diamond, label="Giriş yapıldı mı?\n[K1]"];
+  browse [shape=rectangle, label="Ürün seç & sepete ekle\nDÖNGÜ"];
+  stock [shape=diamond, label="Stok yeterli mi?\n[K2]"];
+  coupon [shape=diamond, label="Kupon var mı?\n[K3]"];
+  couponValid [shape=diamond, label="Kupon geçerli mi?"];
+  ship [shape=rectangle, label="Adres seç &\nKargo hesapla\n[K4]"];
+  pay [shape=rectangle, label="Ödeme yöntemi seç"];
+  payok [shape=diamond, label="Ödeme onayı?\n[K5]"];
+  create [shape=rectangle, label="Sipariş oluştur\nStok düş\nBildirim gönder\n[K6]"];
+  end [shape=oval, label="BİTİR"];
+
+  // Edges
+  start -> login;
+  login -> browse [label="EVET"];
+  login -> end [label="HAYIR\n(Giriş başarısız)"];
+
+  browse -> stock;
+  stock -> coupon [label="EVET"];
+  stock -> browse [label="HAYIR\n(Adet düşür / çıkar)"];
+
+  coupon -> couponValid [label="EVET"];
+  coupon -> ship [label="HAYIR"];
+
+  couponValid -> ship [label="EVET"];
+  couponValid -> browse [label="HAYIR\n(Kodu düzelt)"];
+
+  ship -> pay;
+  pay -> payok;
+  payok -> create [label="EVET"];
+  payok -> pay [label="HAYIR\n(Alternatif yöntem)"];
+
+  create -> end;
+}
