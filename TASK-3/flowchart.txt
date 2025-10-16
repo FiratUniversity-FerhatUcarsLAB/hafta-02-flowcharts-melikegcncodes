@@ -1,0 +1,70 @@
+// Görev 3 – Modüler Yaklaşım (rankdir=TB; her modül ayrı subgraph)
+digraph HospitalSystem {
+  rankdir=TB;
+  node [fontname="Arial", fontsize=11];
+
+  start [shape=oval, label="BAŞLA"];
+  menu  [shape=rectangle, label="Ana Menü\n1) Randevu\n2) Tahlil\n3) Çıkış"];
+  exit  [shape=oval, label="BİTİR"];
+
+  start -> menu;
+
+  // --- Modül 1: Randevu Alma ---
+  subgraph cluster_appointment {
+    label="Modül 1: Randevu Alma";
+    color="#4a6cf7"; style="rounded";
+
+    a_id   [shape=diamond,  label="Kimlik doğrulandı mı?\n[A1]"];
+    a_pol  [shape=rectangle,label="Poliklinik seç [A2]"];
+    a_docL [shape=rectangle,label="Doktor listesi"];
+    a_doc  [shape=rectangle,label="Doktor seç [A3]"];
+    a_slot [shape=rectangle,label="Uygun saatleri göster"];
+    a_has  [shape=diamond,  label="Uygun saat var mı?\n[A4]"];
+    a_sel  [shape=rectangle,label="Saat seç"];
+    a_ok   [shape=diamond,  label="Onay? SMS gönder\n[A5]"];
+    a_done [shape=rectangle,label="Randevu oluştur + SMS"];
+    a_fail [shape=rectangle,label="İptal/geri dön"];
+
+    // Flow
+    a_id -> a_pol [label="EVET"];
+    a_id -> a_fail [label="HAYIR"];
+    a_pol -> a_docL -> a_doc -> a_slot -> a_has;
+    a_has -> a_sel [label="EVET"];
+    a_has -> a_fail [label="HAYIR"];
+    a_sel -> a_ok;
+    a_ok -> a_done [label="EVET"];
+    a_ok -> a_fail [label="HAYIR"];
+  }
+
+  // --- Modül 2: Tahlil Sonuçları ---
+  subgraph cluster_lab {
+    label="Modül 2: Tahlil Sonuçları";
+    color="#19a974"; style="rounded";
+
+    t_id   [shape=diamond,  label="Kimlik doğrulandı mı?\n[T1]"];
+    t_exist[shape=diamond,  label="Tahlil kaydı var mı?\n[T2]"];
+    t_ready[shape=diamond,  label="Sonuç hazır mı?\n[T3]"];
+    t_view [shape=rectangle,label="Sonucu görüntüle"];
+    t_pdf  [shape=rectangle,label="PDF oluştur + indir"];
+    t_wait [shape=rectangle,label="Hazırlanıyor mesajı"];
+
+    t_id -> t_exist [label="EVET"];
+    t_id -> t_wait  [label="HAYIR"];
+    t_exist -> t_ready [label="EVET"];
+    t_exist -> t_wait  [label="HAYIR\n(Kayıt yok)"];
+    t_ready -> t_view [label="EVET"];
+    t_ready -> t_wait [label="HAYIR"];
+  }
+
+  // Menüden modüllere geçiş ve geri dönüş
+  menu -> a_id   [label="Randevu"];
+  menu -> t_id   [label="Tahlil"];
+  menu -> exit   [label="Çıkış"];
+
+  // Modüllerden menüye geri
+  a_done -> menu;
+  a_fail -> menu;
+  t_view -> menu;
+  t_pdf  -> menu;
+  t_wait -> menu;
+}
