@@ -1,0 +1,48 @@
+// Üniversite Ders Kayıt Sistemi – Kontrol noktaları diamond ile
+digraph CourseRegistration {
+  rankdir=TB;
+  node [fontname="Arial", fontsize=11];
+
+  start  [shape=oval,   label="BAŞLA"];
+  login  [shape=diamond,label="Giriş başarılı mı?"];
+  menu   [shape=rectangle,label="Ders listesinden seçim\nveya Bitir"];
+  prereq [shape=diamond,label="Ön koşul [K1]"];
+  capa   [shape=diamond,label="Kontenjan [K2]"];
+  clash  [shape=diamond,label="Zaman çakışması? [K3]"];
+  credit [shape=diamond,label="Kredi limiti aşılır mı? [K4]"];
+  addc   [shape=rectangle,label="Dersi geçici ekle\n+ kapasite rezervasyonu"];
+  warn   [shape=rectangle,label="Gerekçe ile reddet\n(ön koşul/kapasite/çakışma/kredi)"];
+  adv    [shape=diamond,label="Danışman onayı [K5]"];
+  commit [shape=rectangle,label="Kayıtları kesinleştir\nBildirim gönder"];
+  revoke [shape=rectangle,label="Rezervasyonu geri al\nRed gerekçesi bildir"];
+  exit   [shape=oval,   label="BİTİR"];
+
+  start -> login;
+  login -> menu [label="EVET"];
+  login -> exit [label="HAYIR"];
+
+  // Seçim döngüsü
+  menu -> prereq [label="Ders seçildi"];
+  menu -> adv    [label="Bitir"];
+
+  prereq -> capa  [label="EVET"];
+  prereq -> warn  [label="HAYIR"];
+
+  capa -> clash   [label="EVET"];
+  capa -> warn    [label="HAYIR\n(Yedek liste)"];
+
+  clash -> warn   [label="EVET"];
+  clash -> credit [label="HAYIR"];
+
+  credit -> warn  [label="EVET"];
+  credit -> addc  [label="HAYIR"];
+
+  addc -> menu    [label="Başka ders?"];
+
+  // Danışman onayı ve çıkış
+  adv -> commit   [label="EVET"];
+  adv -> revoke   [label="HAYIR"];
+  commit -> exit;
+  revoke -> menu  [label="Düzelt ve tekrar gönder"];
+  warn -> menu    [label="Başka ders dene"];
+}
