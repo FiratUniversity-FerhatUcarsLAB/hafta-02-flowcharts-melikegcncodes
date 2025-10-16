@@ -1,0 +1,39 @@
+digraph ATM {
+    node [shape=rectangle, style=rounded];
+    rankdir=TB;
+
+    start [label="BAŞLA", shape=oval];
+    pin [label="PIN gir", shape=parallelogram];
+    check_pin [label="PIN doğru mu?", shape=diamond];
+    bakiye [label="Bakiye oku", shape=parallelogram];
+    tutar [label="Tutar gir (20 TL katları)", shape=parallelogram];
+    kontrol_tutar [label="Tutar 20 TL katı mı?", shape=diamond];
+    kontrol_limit [label="Günlük limit aşıldı mı?", shape=diamond];
+    kontrol_bakiye [label="Bakiye yeterli mi?", shape=diamond];
+    islem [label="Tutarı bakiyeden düş", shape=box];
+    yaz_bakiye [label="Kalan bakiye yaz", shape=parallelogram];
+    tekrar [label="Başka işlem? (E/H)", shape=diamond];
+    end [label="BİTİR", shape=oval];
+    hata_pin [label="PIN hatalı, hak -1", shape=box];
+    bloke [label="Kart bloke", shape=oval];
+
+    start -> pin -> check_pin;
+    check_pin -> bakiye [label="Evet"];
+    check_pin -> hata_pin [label="Hayır"];
+    hata_pin -> pin [label="Hak kaldı"];
+    hata_pin -> bloke [label="Hak yok"];
+
+    bakiye -> tutar -> kontrol_tutar;
+    kontrol_tutar -> kontrol_limit [label="Evet"];
+    kontrol_tutar -> tutar [label="Hayır"];
+
+    kontrol_limit -> kontrol_bakiye [label="Hayır"];
+    kontrol_limit -> tutar [label="Evet"];
+
+    kontrol_bakiye -> islem [label="Evet"];
+    kontrol_bakiye -> tutar [label="Hayır"];
+
+    islem -> yaz_bakiye -> tekrar;
+    tekrar -> tutar [label="Evet"];
+    tekrar -> end [label="Hayır"];
+}
